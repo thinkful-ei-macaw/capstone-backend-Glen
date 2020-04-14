@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 const xss = require('xss');
-const EmployeeService = require('./employee-personal-service')
+const EmployeeService = require('./employee-service')
 
 const employeeRouter = express.Router();
 
@@ -13,13 +13,15 @@ const serializeEmployee = employee => ({
     city: xss(employee.city),
     state: xss(employee.state),
     zip_code: xss(employee.zip_code),
-    phone: xss(employee.phone)
+    phone: xss(employee.phone),
+    modified: employee.modified
 })
 
 employeeRouter
     .route('/')
     .get((req, res, next) => {
         const knexInstance = req.app.get('db');
+        console.log(knexInstance)
         EmployeeService.getAllEmployess(knexInstance)
             .then(employees => {
                 res.json(employees.map(serializeEmployee))
@@ -41,6 +43,7 @@ employeeRouter
                     });
                 }
                 res.employee = employee;
+                next();
             })
             .catch(next)
     })

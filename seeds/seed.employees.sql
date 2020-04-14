@@ -1,4 +1,4 @@
-INSERT INTO personal (id, first_name, last_name, address, city, state, zip_code, phone)
+INSERT INTO employees (id, first_name, last_name, address, city, state, zip_code, phone)
 VALUES
   (1, 'Alex','Larrabee', '6525 Thelma Ave', 'Fullerton', 'CA', 92801, 714-123-4567),
   (2, 'Glen','Larrabee', '6525 Thelma Ave', 'Fullerton', 'CA', 92801, 714-123-4567);

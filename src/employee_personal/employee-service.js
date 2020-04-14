@@ -1,11 +1,11 @@
 const EmployeeService = {
 
     getAllEmployess(knex) {
-        return knex('personal').select('*');
+        return knex('employees').select('*');
     },
 
     getById(knex, id) {
-        return knex('personal').select('*').where({ id }).first();
+        return knex('employees').select('*').where({ id }).first();
     }
 
 

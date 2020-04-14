@@ -1,21 +1,22 @@
 const path = require('path');
 const express = require('express');
 const xss = require('xss');
-const CompanyInfo = require('./employee-company-service');
+const CompanyInfo = require('./company-service');
 
 const companyRouter = express.Router();
 
 const serializeCompany = company => ({
     id: company.id,
     position: xss(company.position),
-    salary: xss(company.salary)
+    salary: xss(company.salary),
+    modified: company.modified
 
 });
 
 companyRouter
     .route('/')
     .get((req, res, next) => {
-        const knextInstance = req.get('db');
+        const knextInstance = req.app.get('db');
         CompanyInfo.getAllCompanyInfo(knextInstance)
             .then(companies => {
                 res.json(companies.map(serializeCompany))

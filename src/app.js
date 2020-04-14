@@ -4,8 +4,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-const employeeRouter = require('./employee_personal/employee-personal-router');
-const companyRouter = require('./employee_company/employee-company-router');
+const employeeRouter = require('./employee_personal/employee-router');
+const companyRouter = require('./employee_company/company-router');
 
 const app = express();
 
