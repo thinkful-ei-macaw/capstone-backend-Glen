@@ -42,6 +42,7 @@ employeeRouter
                         }
                     });
                 }
+
                 res.employee = employee;
                 next();
             })
