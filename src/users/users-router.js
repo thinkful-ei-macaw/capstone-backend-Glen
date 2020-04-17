@@ -9,7 +9,7 @@ const jsonParser = express.json();
 const serializeUser = user => ({
 
     id: user.id,
-    userName: xss(user.username),
+    username: xss(user.username),
     password: xss(user.password),
 
 })
@@ -86,7 +86,6 @@ userRouter
                 }
             });
         }
-
         UserService.updateUser(knexInstance, req.params.user_id, updateUser)
 
             .then(() => {

@@ -24,7 +24,6 @@ const CareerService = {
         return knex('careers').where({ id }).update(newCareerFields)
     }
 
-
 };
 
 module.exports = CareerService;
