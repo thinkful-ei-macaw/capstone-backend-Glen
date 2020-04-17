@@ -4,6 +4,7 @@ const xss = require('xss');
 const EmployeeService = require('./employee-service')
 
 const employeeRouter = express.Router();
+const jsonParser = express.json();
 
 const serializeEmployee = employee => ({
     id: employee.id,
@@ -14,26 +15,49 @@ const serializeEmployee = employee => ({
     state: xss(employee.state),
     zip_code: xss(employee.zip_code),
     phone: xss(employee.phone),
-    modified: employee.modified
+    modified: employee.modified,
+    career_id: employee.career_id,
+    user_id: employee.user_id
 })
+
 
 employeeRouter
     .route('/')
     .get((req, res, next) => {
         const knexInstance = req.app.get('db');
-        console.log(knexInstance)
         EmployeeService.getAllEmployess(knexInstance)
             .then(employees => {
                 res.json(employees.map(serializeEmployee))
             })
             .catch(next)
     })
+    .post(jsonParser, (req, res, next) => {
+        const knexInstance = req.app.get('db');
+        const { first_name, last_name, address, city, state, zip_code, phone, career_id, user_id } = req.body;
+        if (!first_name || !last_name || !address || !city || !state || !zip_code || !phone || !career_id || !user_id) {
+            return res.status(400).json({
+                error: {
+                    message: 'All request body fields must contain info'
+                }
+            });
+        }
+        const newEmployee = {
+            first_name, last_name, address, city, state, zip_code, phone, career_id, user_id
+        };
+        EmployeeService.insertEmployee(knexInstance, newEmployee).then(employee =>
+            res
+                .status(201)
+                .location(path.posix.join(req.originalUrl + `/${employee.id}`))
+                .json(serializeEmployee(employee))
+        )
+
+    });
 
 employeeRouter
-    .route('/:id')
+    .route('/:employee_id')
     .all((req, res, next) => {
         const knexInstance = req.app.get('db');
-        EmployeeService.getById(knexInstance, req.params.id)
+        EmployeeService.getById(knexInstance, req.params.employee_id)
             .then(employee => {
                 if (!employee) {
                     return res.status(404).json({
@@ -45,11 +69,41 @@ employeeRouter
 
                 res.employee = employee;
                 next();
+
             })
             .catch(next)
     })
     .get((req, res, next) => {
         res.json(serializeEmployee(res.employee))
+    })
+    .delete((req, res, next) => {
+        const knexInstance = req.app.get('db');
+
+        EmployeeService.deleteEmployee(knexInstance, req.params.employee_id)
+            .then(() => {
+                res.status(204).end();
+            })
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const knexInstance = req.app.get('db')
+        const { first_name, last_name, address, city, state, phone, career_id, user_id } = req.body;
+        const updateEmployee = { first_name, last_name, address, city, state, phone, career_id, user_id };
+        const numberOfValues = Object.values(updateEmployee).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    message: 'Your request body must at least one of the fields'
+                }
+            });
+
+        }
+
+        console.log(res.employee.user_id)
+        EmployeeService.updateEmployee(knexInstance, req.params.employee_id, updateEmployee)
+            .then(() => {
+                res.status(204).end();
+            })
+
     })
 
 module.exports = employeeRouter;

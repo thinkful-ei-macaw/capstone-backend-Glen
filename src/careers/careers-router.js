@@ -1,27 +1,52 @@
 const path = require('path');
 const express = require('express');
 const xss = require('xss');
-const CareerInfo = require('./careers-service');
+const CareerService = require('./careers-service');
 
 const careerRouter = express.Router();
+const jsonParser = express.json();
 
 const serializeCareer = career => ({
     id: career.id,
     position: xss(career.position),
     salary: xss(career.salary),
     modified: career.modified
-
 });
 
 careerRouter
     .route('/')
     .get((req, res, next) => {
         const knextInstance = req.app.get('db');
-        CareerInfo.getAllCareerInfo(knextInstance)
+        CareerService.getAllCareerInfo(knextInstance)
             .then(careers => {
                 res.json(careers.map(serializeCareer))
             })
             .catch(next)
+    })
+    .post(jsonParser, (req, res, next) => {
+        const knexInstance = req.app.get('db');
+        console.log(knexInstance)
+        const { position, salary } = req.body;
+
+        if (!position || !salary) {
+            return res.status(400).json({
+                error: {
+                    message: 'All fields must be contain info'
+                }
+            });
+        }
+        const newCareer = {
+            position, salary
+        };
+
+        CareerService.insertCareer(knexInstance, newCareer).then(career =>
+            res
+                .status(201)
+                .location(path.posix.join(req.originalUrl + `/${career.id}`))
+                .json(serializeCareer(career))
+
+        );
+
     });
 
 
@@ -29,7 +54,7 @@ careerRouter
     .route('/:career_id')
     .all((req, res, next) => {
         const knexInstance = req.app.get('db')
-        CareerInfo.getById(knexInstance, req.params.career_id)
+        CareerService.getById(knexInstance, req.params.career_id)
             .then(career => {
                 if (!career) {
                     return res.status(404).json({
@@ -45,6 +70,33 @@ careerRouter
     })
     .get((req, res, next) => {
         res.json(serializeCareer(res.career))
+    })
+    .delete((req, res, next) => {
+        const knexInstance = req.app.get('db');
+        CareerService.deleteCareer(knexInstance, req.params.career_id)
+            .then(() => {
+                res.status(204).end();
+            })
+            .catch(next)
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const knexInstance = req.app.get('db');
+        const { position, salary } = req.body;
+        const updateCareer = { position, salary }
+
+        const numberOfValues = Object.values(updateCareer).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    message: `Your request body must contain, 'postion or salary'`
+                }
+            });
+        }
+        CareerService.updateCareer(knexInstance, req.params.career_id, updateCareer)
+            .then(() => {
+                res.status(204).end();
+            })
+
     });
 
 module.exports = careerRouter;
