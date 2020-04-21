@@ -18,20 +18,23 @@ authRouter
         }
         AuthService.getUserWithUserName(
             req.app.get('db'),
-            loginUser.username
+            loginUser.username,
+            console.log(loginUser.username),
+            console.log(loginUser.password)
         )
             .then(dbUser => {
                 if (!dbUser)
                     return res.status(400).json({
-                        error: 'Incorrect username or password',
+                        error: 'Incorrect username or password1',
                     })
                 return AuthService.comparePasswords(loginUser.password, dbUser.password)
                     .then(compareMatch => {
                         if (!compareMatch)
                             return res.status(400).json({
-                                error: 'Incorrect username or password',
+                                error: 'Incorrect username or password2',
                             })
-
+                        console.log(loginUser.password)
+                        console.log(dbUser.password)
                         const sub = dbUser.username
                         const payload = { user_id: dbUser.id }
                         res.send({
