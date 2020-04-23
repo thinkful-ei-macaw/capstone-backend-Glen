@@ -7,6 +7,7 @@ const employeeRouter = express.Router();
 const jsonParser = express.json();
 
 const serializeEmployee = employee => ({
+
     id: employee.id,
     first_name: xss(employee.first_name),
     last_name: xss(employee.last_name),
@@ -44,11 +45,14 @@ employeeRouter
         const newEmployee = {
             first_name, last_name, address, city, state, zip_code, phone, career_id, user_id
         };
-        EmployeeService.insertEmployee(knexInstance, newEmployee).then(employee =>
+        EmployeeService.insertEmployee(knexInstance, newEmployee).then(employee => {
+            console.log(employee),
+                console.log(serializeEmployee(employee))
             res
                 .status(201)
                 .location(path.posix.join(req.originalUrl + `/${employee.id}`))
                 .json(serializeEmployee(employee))
+        }
         )
 
     });
@@ -92,16 +96,22 @@ employeeRouter
         if (numberOfValues === 0) {
             return res.status(400).json({
                 error: {
-                    message: 'Your request body must at least one of the fields'
+                    message: 'Your request body must contain at least one of the fields'
                 }
             });
 
         }
 
-        console.log(res.employee.user_id)
+
         EmployeeService.updateEmployee(knexInstance, req.params.employee_id, updateEmployee)
-            .then(() => {
-                res.status(204).end();
+            .then(employee => {
+                console.log(employee)
+                console.log(serializeEmployee(employee[0]))
+                res
+                    .status(201)
+                    .location(path.posix.join(req.originalUrl + `/${employee[0].id}`))
+                    .json(serializeEmployee(employee[0]))
+
             })
 
     })

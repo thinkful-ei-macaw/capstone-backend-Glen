@@ -21,7 +21,9 @@ const EmployeeService = {
     },
 
     updateEmployee(knex, id, newEmployeeFields) {
-        return knex('employees').where({ id }).update(newEmployeeFields);
+        return knex('employees').where({ id }).update(newEmployeeFields).returning('*')
+
+
     }
 
 
