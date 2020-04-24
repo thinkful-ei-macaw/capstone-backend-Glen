@@ -123,9 +123,9 @@ View array of employee objects
 
     Delete selected id
 
-    ```
+    
     DELETE https://immense-refuge-35905.herokuapp.com/api/employees/5
 
     HTTP STATUS 204 (Deleted)
 
-    ```
+    
