@@ -48,8 +48,8 @@ View array of employee objects
 
 Create a new employee field 
 
-        Key | Value
-    ------------ | -------------
+        Key  | Value
+        ---  | -----
     first_name | STRING
     last_name | STRING
     address | STRING
