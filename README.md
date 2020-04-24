@@ -46,10 +46,10 @@ View array of employee objects
 ```
 # POST /api/employees
 
-Create a new employee field 
+    Create a new employee field. You must send in a request body to post.
 
-        Key  | Value
-        ---  | -----
+     Key  | Value
+     ---  | ----- 
     first_name | STRING
     last_name | STRING
     address | STRING
@@ -76,6 +76,56 @@ Create a new employee field
         "user_id": 1
     }
 
+    HTTP STATUS 201 (Created)
+
 ```
 
+# PATCH /api/employees:id
 
+    Update valid employee fields. You must send in a request body to update. Only one update field is required to PATCH
+
+
+    Key  | Value
+    ---- | ----- 
+    first_name | STRING
+    last_name | STRING
+    address | STRING
+    city | STRING
+    state | STRING
+    zip_code | STRING
+    phone | STRING
+    career_id | INTEGER
+    user_id | INTEGER
+
+    
+
+```
+    PATCH https://immense-refuge-35905.herokuapp.com/api/employees/31
+
+    REQ BODY: {
+       
+        "id": 31,
+        "first_name": "EXAMPLE NAME",
+        "last_name": "Smith",
+        "address": "123 Your Place Lane",
+        "city": "Laguna Beach",
+        "state": "CA",
+        "zip_code": "92801",
+        "phone": "5624561234",
+        "career_id": 1,
+        "user_id": 1
+    }
+
+    HTTP STATUS 200 (Okay)
+
+```
+# DELETE /api/employees/:id
+
+    Delete selected id
+
+    ```
+    DELETE https://immense-refuge-35905.herokuapp.com/api/employees/5
+
+    HTTP STATUS 204 (Deleted)
+
+    ```

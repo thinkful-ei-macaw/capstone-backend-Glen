@@ -109,7 +109,7 @@ employeeRouter
                 console.log(employee)
                 console.log(serializeEmployee(employee[0]))
                 res
-                    .status(201)
+                    .status(200)
                     .location(path.posix.join(req.originalUrl + `/${employee[0].id}`))
                     .json(serializeEmployee(employee[0]))
 
