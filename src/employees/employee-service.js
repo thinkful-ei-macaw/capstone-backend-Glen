@@ -17,12 +17,11 @@ const EmployeeService = {
     },
 
     deleteEmployee(knex, id) {
-        return knex('employees').where({ id }).delete();
+        return knex('employees').where({ id }).delete().returning('*');
     },
 
     updateEmployee(knex, id, newEmployeeFields) {
         return knex('employees').where({ id }).update(newEmployeeFields).returning('*')
-
 
     }
 

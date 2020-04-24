@@ -85,13 +85,14 @@ employeeRouter
 
         EmployeeService.deleteEmployee(knexInstance, req.params.employee_id)
             .then(() => {
-                res.status(204).end();
+                res.status(201).json({});
             })
+            .catch(next)
     })
     .patch(jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db')
-        const { first_name, last_name, address, city, state, phone, career_id, user_id } = req.body;
-        const updateEmployee = { first_name, last_name, address, city, state, phone, career_id, user_id };
+        const { first_name, last_name, address, city, state, zip_code, phone, career_id, user_id } = req.body;
+        const updateEmployee = { first_name, last_name, address, city, state, zip_code, phone, career_id, user_id };
         const numberOfValues = Object.values(updateEmployee).filter(Boolean).length;
         if (numberOfValues === 0) {
             return res.status(400).json({
