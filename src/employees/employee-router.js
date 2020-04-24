@@ -85,7 +85,7 @@ employeeRouter
 
         EmployeeService.deleteEmployee(knexInstance, req.params.employee_id)
             .then(() => {
-                res.status(201).json({});
+                res.status(201).json({ success: true });
             })
             .catch(next)
     })
