@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
+const validateBearerToken = require('./BearerToken/validateBearerToken')
 const { NODE_ENV } = require('./config');
 const employeeRouter = require('./employees/employee-router');
 const careerRouter = require('./careers/careers-router');
@@ -35,6 +36,8 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 
+app.get('/', (req, res) => res.send('Hello'))
+app.use(validateBearerToken);
 app.use('/api/employees', employeeRouter);
 app.use('/api/careers', careerRouter);
 app.use('/api/users', userRouter);
