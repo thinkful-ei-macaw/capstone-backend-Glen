@@ -8,7 +8,7 @@ const { requireAuth } = require('../middleware/auth')
 const employeeRouter = express.Router();
 const jsonParser = express.json();
 
-employeeRouter.use(requireAuth)
+employeeRouter.use((req, res, next) => requireAuth.auth(req, res, next))
 
 const serializeEmployee = employee => ({
 
@@ -25,10 +25,10 @@ const serializeEmployee = employee => ({
     user_id: employee.user_id
 })
 
-
+console.log(requireAuth)
 employeeRouter
     .route('/')
-    .get((req, res, next) => {
+    .get(requireAuth, (req, res, next) => {
         const knexInstance = req.app.get('db');
         EmployeeService.getAllEmployess(knexInstance)
             .then(employees => {
