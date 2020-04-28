@@ -1,8 +1,13 @@
 const express = require('express')
 const AuthService = require('./auth-service')
 
+const {
+    requireAuth
+} = require('../middleware/auth');
+
 const authRouter = express.Router()
 const jsonBodyParser = express.json()
+
 
 authRouter
     .post('/login', jsonBodyParser, (req, res, next) => {
@@ -40,10 +45,13 @@ authRouter
                         res.send({
                             authToken: AuthService.createJwt(sub, payload),
                         })
+                        console.log(authToken)
                     })
             })
-            .catch(next)
-    })
+            .catch(error => {
+                next(error)
+            })
+    });
 
 
 

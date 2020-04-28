@@ -37,7 +37,7 @@ app.use(helmet());
 app.use(cors());
 
 app.get('/', (req, res) => res.send('Hello'))
-app.use(validateBearerToken);
+// app.use(validateBearerToken);
 app.use('/api/employees', employeeRouter);
 app.use('/api/careers', careerRouter);
 app.use('/api/users', userRouter);
@@ -46,36 +46,4 @@ app.use('/api/auth', authRouter);
 
 module.exports = app;
 
-// import routers
-// const employeesRouter = require('./routers/employees-router');
-// const protectedRouter = require('./routers/protected-router');
 
-// set up routes
-// const routes = [
-//   {
-//     url: '/employees',
-//     router: employeesRouter,
-//   },
-//   {
-//     url: '/protected',
-//     router: protectedRouter,
-//   }
-// ];
-
-// add routes to app
-// routes.forEach(({ url, router }) => {
-//   app.use(url, router);
-// });
-
-// list endpoints by default
-// app.get('/', (req, res) => {
-//   return res
-//     .status(200)
-//     .json({
-//       endpoints: routes.map(route => route.url)
-//     });
-// });
-
-
-
-// the bottom line, literally

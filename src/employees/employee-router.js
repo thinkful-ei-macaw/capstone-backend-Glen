@@ -2,9 +2,13 @@ const path = require('path');
 const express = require('express');
 const xss = require('xss');
 const EmployeeService = require('./employee-service')
+const { requireAuth } = require('../middleware/auth')
+
 
 const employeeRouter = express.Router();
 const jsonParser = express.json();
+
+employeeRouter.use(requireAuth)
 
 const serializeEmployee = employee => ({
 
