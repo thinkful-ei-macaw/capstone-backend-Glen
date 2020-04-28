@@ -26,7 +26,7 @@ authRouter
             loginUser.username,
             console.log(loginUser.username),
             console.log(loginUser.password)
-            //test
+            //another test
         )
             .then(dbUser => {
                 if (!dbUser)
