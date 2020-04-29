@@ -2,13 +2,13 @@ const path = require('path');
 const express = require('express');
 const xss = require('xss');
 const EmployeeService = require('./employee-service')
-const { requireAuth } = require('../middleware/auth')
+const { authorization } = require('../middleware/auth')
 
 
 const employeeRouter = express.Router();
 const jsonParser = express.json();
 
-employeeRouter.use((req, res, next) => requireAuth.auth(req, res, next))
+employeeRouter.use(authorization)
 
 const serializeEmployee = employee => ({
 
@@ -25,10 +25,9 @@ const serializeEmployee = employee => ({
     user_id: employee.user_id
 })
 
-console.log(requireAuth)
 employeeRouter
     .route('/')
-    .get(requireAuth, (req, res, next) => {
+    .get(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
         EmployeeService.getAllEmployess(knexInstance)
             .then(employees => {
@@ -36,7 +35,7 @@ employeeRouter
             })
             .catch(next)
     })
-    .post(jsonParser, (req, res, next) => {
+    .post(authorization, jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db');
         const { first_name, last_name, address, city, state, zip_code, phone, career_id, user_id } = req.body;
         if (!first_name || !last_name || !address || !city || !state || !zip_code || !phone || !career_id || !user_id) {
@@ -63,7 +62,7 @@ employeeRouter
 
 employeeRouter
     .route('/:employee_id')
-    .all((req, res, next) => {
+    .all(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
         EmployeeService.getById(knexInstance, req.params.employee_id)
             .then(employee => {
@@ -84,7 +83,7 @@ employeeRouter
     .get((req, res, next) => {
         res.json(serializeEmployee(res.employee))
     })
-    .delete((req, res, next) => {
+    .delete(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
 
         EmployeeService.deleteEmployee(knexInstance, req.params.employee_id)
@@ -93,7 +92,7 @@ employeeRouter
             })
             .catch(next)
     })
-    .patch(jsonParser, (req, res, next) => {
+    .patch(authorization, jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db')
         const { first_name, last_name, address, city, state, zip_code, phone, career_id, user_id } = req.body;
         const updateEmployee = { first_name, last_name, address, city, state, zip_code, phone, career_id, user_id };

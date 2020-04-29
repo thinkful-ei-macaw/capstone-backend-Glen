@@ -3,15 +3,18 @@ const app = require('../src/app');
 const helpers = require('./test-helpers')
 
 const { TEST_DATABASE_URL } = require('../src/config');
-const { testEmployees } = helpers.makeTestEmployee();
+const { makeTestEmployees } = helpers.makeTestEmployees();
+
 
 
 // set up variables used throughout these tests
-const table_name = 'employees';
-const endpoint = '/api/employees';
+// const table_name = 'employees';
+// const endpoint = '/api/employees';
 
 describe('Employees endpoints', () => {
   let db;
+
+
 
   before('set up db instance', () => {
     db = knex({
@@ -44,12 +47,16 @@ describe('Employees endpoints', () => {
         return supertest(app)
           .get('/api/careers')
       })
+
+
+
       context(`Given there are employees in the DB`, () => {
-        beforeEach('insert employee', () => {
-          return db
-            .into('employees')
-            .insert(helpers.makeEmployeesArray())
-        })
+        beforeEach('insert employee', () =>
+          helpers.seedEmployees(
+            db,
+            makeTestEmployees
+          )
+        )
         it(`GET /employees responds with 200 and all the employees`, () => {
           return supertest(app)
             .get('/api/employees')

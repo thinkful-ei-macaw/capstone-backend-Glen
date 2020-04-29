@@ -2,9 +2,12 @@ const path = require('path');
 const express = require('express');
 const xss = require('xss');
 const CareerService = require('./careers-service');
+const { authorization } = require('../middleware/auth');
 
 const careerRouter = express.Router();
 const jsonParser = express.json();
+
+careerRouter.use(authorization);
 
 const serializeCareer = career => ({
     id: career.id,
@@ -15,7 +18,7 @@ const serializeCareer = career => ({
 
 careerRouter
     .route('/')
-    .get((req, res, next) => {
+    .get(authorization, (req, res, next) => {
         const knextInstance = req.app.get('db');
         CareerService.getAllCareerInfo(knextInstance)
             .then(careers => {
@@ -23,7 +26,7 @@ careerRouter
             })
             .catch(next)
     })
-    .post(jsonParser, (req, res, next) => {
+    .post(authorization, jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db');
         console.log(knexInstance)
         const { position, salary } = req.body;
@@ -52,7 +55,7 @@ careerRouter
 
 careerRouter
     .route('/:career_id')
-    .all((req, res, next) => {
+    .all(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db')
         CareerService.getById(knexInstance, req.params.career_id)
             .then(career => {
@@ -71,7 +74,7 @@ careerRouter
     .get((req, res, next) => {
         res.json(serializeCareer(res.career))
     })
-    .delete((req, res, next) => {
+    .delete(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
         CareerService.deleteCareer(knexInstance, req.params.career_id)
             .then(() => {
@@ -79,7 +82,7 @@ careerRouter
             })
             .catch(next)
     })
-    .patch(jsonParser, (req, res, next) => {
+    .patch(authorization, jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db');
         const { position, salary } = req.body;
         const updateCareer = { position, salary }

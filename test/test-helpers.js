@@ -34,11 +34,14 @@ function makeEmployeesArray() {
     ]
 }
 
-function makeTestEmployee() {
+
+
+
+
+function makeTestEmployees() {
     const testEmployee = makeEmployeesArray()
-    return {
-        testEmployee
-    }
+    return { testEmployee }
+
 }
 
 
@@ -78,15 +81,15 @@ function cleanTables(db) {
 
 function seedEmployees(db, employees) {
     const preppedUsers = employees.map(employee => ({
-        ...employee
+        ...employee, password: bcrypt.hashSync(employee.password, 1)
     }));
     return db
-        .into("employees")
+        .into('employees')
         .insert(preppedUsers)
         .then(() =>
-            db.raw(`SELECT setval('employees_id_seq', ?)`, [
-                employees[employees.length - 1].id,
-            ])
+            db.raw(`SELECT setval('employees_id_seq', ?)`,
+                [employees[employees.length - 1].id],
+            )
         );
 }
 
@@ -95,7 +98,7 @@ function seedEmployees(db, employees) {
 module.exports = {
 
     makeEmployeesArray,
-    makeTestEmployee,
+    makeTestEmployees,
     cleanTables,
     seedEmployees,
 

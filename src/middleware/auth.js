@@ -7,7 +7,7 @@ const AuthService = require('../auth/auth-service')
 
 //   Checks for a correct Bearer token authorization header
 
-function auth(req, res, next) {
+function authorization(req, res, next) {
     const authToken = req.get('Authorization') || '';
     console.log(authToken)
     let bearerToken;
@@ -49,5 +49,5 @@ function auth(req, res, next) {
 }
 
 module.exports = {
-    auth,
+    authorization
 };

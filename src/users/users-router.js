@@ -2,9 +2,12 @@ const path = require('path')
 const express = require('express')
 const xss = require('xss')
 const UserService = require('./users-service')
+const { authorization } = require('../middleware/auth');
 
 const userRouter = express.Router();
 const jsonParser = express.json();
+
+userRouter.use(authorization)
 
 const serializeUser = user => ({
 
@@ -16,7 +19,7 @@ const serializeUser = user => ({
 
 userRouter
     .route('/')
-    .get((req, res, next) => {
+    .get(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
         UserService.getAllUsers(knexInstance)
             .then(users => {
@@ -47,7 +50,7 @@ userRouter
 
 userRouter
     .route('/:user_id')
-    .all((req, res, next) => {
+    .all(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
         UserService.getById(knexInstance, req.params.user_id)
             .then(user => {
@@ -66,7 +69,7 @@ userRouter
     .get((req, res, next) => {
         res.json(serializeUser(res.user))
     })
-    .delete((req, res, next) => {
+    .delete(authorization, (req, res, next) => {
         const knexInstance = req.app.get('db');
         UserService.deleteUser(knexInstance, req.params.user_id)
             .then(() => {
@@ -74,7 +77,7 @@ userRouter
             })
             .catch(next)
     })
-    .patch(jsonParser, (req, res, next) => {
+    .patch(authorization, jsonParser, (req, res, next) => {
         const knexInstance = req.app.get('db');
         const { username, password } = req.body;
         const updateUser = { username, password }
