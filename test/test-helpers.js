@@ -7,7 +7,7 @@ function makeUsersArray() {
         {
             id: 1,
             username: 'TestUser1',
-            password: 'password'
+            password: 'password',
 
 
         },
@@ -15,20 +15,41 @@ function makeUsersArray() {
         {
             id: 2,
             username: 'TestUser2',
-            password: 'password'
+            password: 'password',
 
 
         }
     ]
 }
 
+function makeCareersArray() {
+
+    return [
+        {
+            id: 1,
+            position: 'TestPosition1',
+            salary: '10000',
+
+        },
+        {
+
+            id: 2,
+            position: 'TestPosition2',
+            salary: '20000',
+
+        }
+    ]
 
 
-function makeEmployeesArray() {
+}
+
+
+
+function makeEmployeesArray(users, careers) {
     return [
 
         {
-            id: 3,
+            id: 1,
             first_name: 'test-first-name-1',
             last_name: 'test-last-name-1',
             address: '123 some street',
@@ -36,13 +57,13 @@ function makeEmployeesArray() {
             state: 'CA',
             zip_code: '92801',
             phone: '123-456-7890',
-            career_id: 1,
-            user_id: 1,
+            career_id: careers[0].id,
+            user_id: users[0].id,
 
         },
 
         {
-            id: 4,
+            id: 2,
             first_name: 'test-first-name-2',
             last_name: 'test-last-name-2',
             address: '123 some street',
@@ -50,8 +71,8 @@ function makeEmployeesArray() {
             state: 'CA',
             zip_code: '92801',
             phone: '123-456-7890',
-            career_id: 2,
-            user_id: 2,
+            career_id: careers[1].id,
+            user_id: users[1].id,
 
         }
 
@@ -59,19 +80,15 @@ function makeEmployeesArray() {
     ]
 }
 
+function makeFixtures() {
+
+    const testUsers = makeUsersArray();
+    const testCareers = makeCareersArray();
+    const testEmployees = makeEmployeesArray(testUsers, testCareers);
+
+    return { testUsers, testCareers, testEmployees };
 
 
-
-
-function makeTestEmployees() {
-    const testEmployee = makeEmployeesArray()
-    return testEmployee
-
-}
-
-function makeTestUsers() {
-    const testUser = makeUsersArray();
-    return testUser
 }
 
 
@@ -79,13 +96,20 @@ function cleanTables(db) {
     return db.transaction(trx => (
         trx.raw(
             `TRUNCATE
-                employees
+                employees,
+                users,
+                careers
+                restart identity cascade
                   `
         )
             .then(() =>
                 Promise.all([
                     trx.raw(`ALTER SEQUENCE employees_id_seq minvalue 0 START WITH 1`),
-                    trx.raw(`SELECT setval('employees_id_seq', 0)`)
+                    trx.raw(`ALTER SEQUENCE users_id_seq minvalue 0 START WITH 1`),
+                    trx.raw(`ALTER SEQUENCE careers_id_seq minvalue 0 START WITH 1`),
+                    trx.raw(`SELECT setval('employees_id_seq', 0)`),
+                    trx.raw(`SELECT setval('users_id_seq', 0)`),
+                    trx.raw(`SELECT setval('careers_id_seq', 0)`),
                 ])
             )
     )
@@ -97,31 +121,45 @@ function seedUsers(db, users) {
     const preppedUsers = users.map(user => ({
         ...user,
         password: bcrypt.hashSync(user.password, 1)
-    }))
-    return db.into('users').insert(preppedUsers)
+    }));
+    return db
+        .into('users')
+        .insert(preppedUsers)
         .then(() =>
-            // update the auto sequence to stay in sync
             db.raw(
-                `SELECT setval('commit_users_id_seq', ?)`,
+                `SELECT setval('users_id_seq', ?)`,
                 [users[users.length - 1].id],
             )
-        )
+        );
+}
+
+function seedCareers(db, careers) {
+    const preppedCareers = careers.map(career => ({
+        ...career
+    }))
+    return db
+        .into('careers')
+        .insert(preppedCareers)
+        .then(() =>
+            db.raw(
+                `SELECT setval('careers_id_seq', ?)`,
+                [careers[careers.length - 1].id],
+            ))
 }
 
 
-function seedEmployees(db, employees) {
+function seedEmployees(db, users, employees, careers) {
 
-    const preppedUsers = employees.map(employee => ({
-        ...employee
-    }));
-    return db
-        .into('employees')
-        .insert(preppedUsers)
-        .then(() =>
-            db.raw(`SELECT setval('employees_id_seq', ?)`,
-                [employees[employees.length - 1].id],
-            )
-        );
+    return db.transaction(async trx => {
+        await seedUsers(trx, users)
+        await seedCareers(trx, careers)
+        await trx.into('employees').insert(employees)
+        await trx.raw(
+            `SELECT setval('employees_id_seq', ?)`,
+            [employees[employees.length - 1].id],
+        )
+    })
+
 }
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
@@ -138,13 +176,14 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
 
 module.exports = {
 
+    makeUsersArray,
+    makeCareersArray,
     makeEmployeesArray,
-    makeTestEmployees,
+    makeFixtures,
     cleanTables,
-    seedEmployees,
     seedUsers,
-    makeAuthHeader,
-    makeTestUsers
-
+    seedCareers,
+    seedEmployees,
+    makeAuthHeader
 
 }
