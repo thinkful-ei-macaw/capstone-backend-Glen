@@ -118,7 +118,7 @@ function cleanTables(db) {
 
 
 function seedUsers(db, users) {
-    const preppedUsers = users.map(user => ({
+    const preppedUsers = users.map((user) => ({
         ...user,
         password: bcrypt.hashSync(user.password, 1)
     }));
@@ -128,23 +128,23 @@ function seedUsers(db, users) {
         .then(() =>
             db.raw(
                 `SELECT setval('users_id_seq', ?)`,
-                [users[users.length - 1].id],
-            )
+                [users[users.length - 1].id,
+                ])
         );
 }
 
-function seedCareers(db, careers) {
-    const preppedCareers = careers.map(career => ({
-        ...career
-    }))
-    return db
-        .into('careers')
-        .insert(preppedCareers)
-        .then(() =>
-            db.raw(
-                `SELECT setval('careers_id_seq', ?)`,
-                [careers[careers.length - 1].id],
-            ))
+function seedCareers(db, careers, users) {
+    return db.transaction(async trx => {
+        await seedUsers(trx, users)
+        await trx.into('careers').insert(careers)
+        await trx.raw(
+            `SELECT setval('careers_id_seq', ?)`,
+            [careers[careers.length - 1].id],
+
+        )
+
+    })
+
 }
 
 
@@ -161,6 +161,13 @@ function seedEmployees(db, users, employees, careers) {
     })
 
 }
+
+// function seedOtherTables(db, users){
+//     return db.transaction(async (trx) => {
+//         await seedUsers(trx, users)
+//         await trx.into
+//     })
+// }
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
 
