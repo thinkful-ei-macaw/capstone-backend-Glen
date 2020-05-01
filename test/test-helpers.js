@@ -10,12 +10,14 @@ function makeUsersArray() {
             password: 'password',
 
 
+
         },
 
         {
             id: 2,
             username: 'TestUser2',
             password: 'password',
+
 
 
         }
@@ -29,6 +31,7 @@ function makeCareersArray() {
             id: 1,
             position: 'TestPosition1',
             salary: '10000',
+            modified: new Date()
 
         },
         {
@@ -36,6 +39,8 @@ function makeCareersArray() {
             id: 2,
             position: 'TestPosition2',
             salary: '20000',
+            modified: new Date()
+
 
         }
     ]
@@ -133,10 +138,11 @@ function seedUsers(db, users) {
         );
 }
 
-function seedCareers(db, careers) {
+function seedCareers(db, careers, users) {
     const preppedCareers = careers.map(career => ({
         ...career
     }));
+    seedUsers(db, users);
     return db
         .into('careers')
         .insert(preppedCareers)

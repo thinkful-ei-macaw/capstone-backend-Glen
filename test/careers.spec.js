@@ -35,26 +35,32 @@ describe('Career Endpoints', function () {
             })
         })
 
+
         context('Given there are careers in the database', () => {
             beforeEach('insert careers', () =>
                 helpers.seedCareers(
                     db,
-                    testCareers
+                    testCareers,
+                    testUsers
                 ),
 
             );
 
             it('responds with 200 and all the careers', () => {
-
                 return supertest(app)
                     .get('/api/careers')
                     .set('Authorization', helpers.makeAuthHeader(testUser))
-                    .expect(200, testCareer)
+                    .expect(200, testCareers)
             })
         })
 
+
+
         describe('POST /api/careers', () => {
             it(`creates a new career, responding with 201 and the new career`, function () {
+                // beforeEach('insert users', () =>
+                //     helpers.seedUsers(db, testUsers)
+                // )
                 this.retries(3)
                 const newCareer = {
                     position: 'Career1',
@@ -75,6 +81,38 @@ describe('Career Endpoints', function () {
 
             })
         })
+
+
+        describe('DELETE /api/careers/:career_id', () => {
+            context('Given no career', () => {
+                // beforeEach('insert users', () =>
+                //     helpers.seedUsers(db, testUsers)
+                // )
+                it('responds with 404', () => {
+                    const careerID = 12345
+                    return supertest(app)
+                        .delete(`/api/careers/${careerID}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUser))
+                        .expect(404, {
+                            error: {
+                                message: 'Career does not exist'
+                            }
+                        })
+                })
+            })
+        })
+
+        describe('GET /api/careers/:career_id', () => {
+            it('should return a career', function () {
+                const id = 1
+
+                return supertest(app)
+                    .get(`/api/careers/${id}`)
+                    .set('Authorization', helpers.makeAuthHeader(testUser))
+                    .expect(200)
+            })
+        })
+
 
 
     })
