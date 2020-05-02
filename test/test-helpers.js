@@ -28,18 +28,18 @@ function makeCareersArray() {
 
     return [
         {
-            id: 1,
+            id: 3,
             position: 'TestPosition1',
             salary: '10000',
-            modified: new Date()
+            modified: new Date().toJSON()
 
         },
         {
 
-            id: 2,
+            id: 4,
             position: 'TestPosition2',
             salary: '20000',
-            modified: new Date()
+            modified: new Date().toJSON()
 
 
         }
@@ -123,6 +123,7 @@ function cleanTables(db) {
 
 
 function seedUsers(db, users) {
+
     const preppedUsers = users.map((user) => ({
         ...user,
         password: bcrypt.hashSync(user.password, 1)
@@ -139,10 +140,12 @@ function seedUsers(db, users) {
 }
 
 function seedCareers(db, careers, users) {
+
     const preppedCareers = careers.map(career => ({
         ...career
     }));
     seedUsers(db, users);
+    console.log(users, careers)
     return db
         .into('careers')
         .insert(preppedCareers)
@@ -153,17 +156,12 @@ function seedCareers(db, careers, users) {
                 ])
         );
 }
-
-// function seedCareers(db, careers) {
-//     return db.transaction(async trx => {
-//         await trx.into('careers').insert(careers)
-//         await trx.raw(
-//             `SELECT setval('careers_id_seq', ?)`,
-//             [careers[careers.length - 1].id,])
-
-//     })
-
-// }
+function seedOtherTables(db, users, careers) {
+    return db.transaction(async (trx) => {
+        await seedUsers(trx, users);
+        await seedCareers(trx, careers);
+    })
+}
 
 
 function seedEmployees(db, users, employees, careers) {
@@ -203,6 +201,7 @@ module.exports = {
     seedUsers,
     seedCareers,
     seedEmployees,
-    makeAuthHeader
+    makeAuthHeader,
+    seedOtherTables
 
 }
