@@ -28,7 +28,7 @@ function makeCareersArray() {
 
     return [
         {
-            id: 3,
+            id: 1,
             position: 'TestPosition1',
             salary: '10000',
             modified: new Date().toJSON()
@@ -36,7 +36,7 @@ function makeCareersArray() {
         },
         {
 
-            id: 4,
+            id: 2,
             position: 'TestPosition2',
             salary: '20000',
             modified: new Date().toJSON()
@@ -179,8 +179,8 @@ function seedEmployees(db, users, employees, careers) {
 }
 
 
-function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
-
+function makeAuthHeader(user) {
+    const secret = process.env.JWT_SECRET
     const token = jwt.sign({
         user_id: user.id
     }, secret, {
