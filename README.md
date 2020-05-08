@@ -2,6 +2,8 @@
 
 Back-end for the heroku database. CRUD functions
 
+Server data can be manipulated vis POSTMAN or Client side app.
+
 You can select from the following fields in you api call
 (employees, careers, users)
 
